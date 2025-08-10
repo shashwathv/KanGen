@@ -1,0 +1,327 @@
+: 1753967046:0;code flashcards.py
+: 1753967633:0;clear
+: 1753967890:0;deactivate
+: 1753967967:0;code flashcards.py
+: 1753968435:0;python -m venv venv
+: 1753968455:0;source ./venv/bin/activate
+: 1753968470:0;pip install  --upgrade pip
+: 1753968481:0;clear
+: 1753969081:0;code test_cv.py
+: 1753969147:0;pip install opencv-python
+: 1753969172:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1753969172:0;/home/guts/Projects/anki_flashcards/venv/bin/python
+: 1753970253:0;pip install cv2
+: 1753970259:0;clear
+: 1753970693:0;pip install opencv-contrib-python
+: 1753971828:0;python test_cv.py
+: 1754103008:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754103015:0;deactivate
+: 1754103017:0;clear
+: 1754103021:0;cd ..
+: 1754454136:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754462740:0;python flashcards.py
+: 1754462803:0;pip install SudachiPy==0.2.1
+: 1754462809:0;python flashcards.py
+: 1754462984:0;pip install sudachidict-core
+: 1754463049:0;clear
+: 1754463051:0;python flashcards.py
+: 1754463605:0;clear
+: 1754463606:0;python flashcards.py
+: 1754463641:0;clear
+: 1754463642:0;python flashcards.py
+: 1754463761:0;clear
+: 1754463763:0;python flashcards.py
+: 1754463893:0;clear
+: 1754463894:0;python flashcards.py
+: 1754464684:0;clear
+: 1754495254:0;python flashcards.py
+: 1754497234:0;clear
+: 1754497243:0;python flashcards.py
+: 1754498555:0;clear
+: 1754498557:0;python flashcards.py
+: 1754498765:0;clear
+: 1754498767:0;python flashcards.py
+: 1754499003:0;clear
+: 1754499003:0;python flashcards.py
+: 1754499245:0;clear
+: 1754499246:0;python flashcards.py
+: 1754499842:0;clear
+: 1754499844:0;python flashcards.py
+: 1754499938:0;clear
+: 1754499939:0;python flashcards.py
+: 1754500523:0;clear
+: 1754500524:0;python flashcards.py
+: 1754500694:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754500697:0;clear
+: 1754500701:0;python flashcards.py
+: 1754500811:0;clear
+: 1754500829:0;python flashcards.py
+: 1754501153:0;clear
+: 1754501161:0;python flashcards.py
+: 1754501608:0;clear
+: 1754501610:0;python flashcards.py
+: 1754501742:0;clear
+: 1754501751:0;python flashcards.py
+: 1754501834:0;clear
+: 1754501835:0;python flashcards.py
+: 1754502007:0;clear
+: 1754502008:0;python flashcards.py
+: 1754502029:0;clear
+: 1754502030:0;python flashcards.py
+: 1754502130:0;clear
+: 1754502131:0;python flashcards.py
+: 1754506025:0;clear
+: 1754506029:0;python flashcards.py
+: 1754506978:0;clear
+: 1754506981:0;python flashcards.py
+: 1754507010:0;clear
+: 1754507013:0;python flashcards.py
+: 1754507084:0;clear
+: 1754507086:0;python flashcards.py
+: 1754507221:0;clear
+: 1754507222:0;python flashcards.py
+: 1754507395:0;clear
+: 1754507398:0;python flashcards.py
+: 1754507742:0;clear
+: 1754507744:0;python flashcards.py
+: 1754507792:0;clear
+: 1754507869:0;python flashcards.py
+: 1754507974:0;clear
+: 1754508559:0;python flashcards.py
+: 1754508791:0;clear
+: 1754508793:0;python flashcards.py
+: 1754509254:0;clear
+: 1754509256:0;python flashcards.py
+: 1754509700:0;clear
+: 1754509710:0;python flashcards.py
+: 1754509855:0;clear
+: 1754509863:0;python flashcards.py
+: 1754510796:0;clear
+: 1754510801:0;python flashcards.py
+: 1754511174:0;clear
+: 1754511175:0;python flashcards.py
+: 1754511321:0;clear
+: 1754511322:0;python flashcards.py
+: 1754514963:0;clear
+: 1754515695:0;python flashcards.py
+: 1754515744:0;clear
+: 1754515745:0;python flashcards.py
+: 1754516482:0;clear
+: 1754516500:0;python flashcards.py
+: 1754516576:0;clear
+: 1754516578:0;python flashcards.py
+: 1754516608:0;clear
+: 1754516609:0;python flashcards.py
+: 1754516915:0;clear
+: 1754516918:0;python flashcards.py
+: 1754517144:0;clear
+: 1754517146:0;python flashcards.py
+: 1754517169:0;clear
+: 1754517170:0;python flashcards.py
+: 1754517241:0;clear
+: 1754517533:0;python flashcards.py
+: 1754517571:0;clear
+: 1754517572:0;python flashcards.py
+: 1754517687:0;clear
+: 1754517688:0;python flashcards.py
+: 1754518081:0;clear
+: 1754518083:0;python flashcards.py
+: 1754518487:0;clear
+: 1754518489:0;python flashcards.py
+: 1754518505:0;clear
+: 1754518506:0;python flashcards.py
+: 1754519005:0;clear
+: 1754519007:0;python flashcards.py
+: 1754519049:0;clear
+: 1754519050:0;python flashcards.py
+: 1754519097:0;clear
+: 1754519679:0;python flashcards.py
+: 1754522556:0;clear
+: 1754522557:0;python flashcards.py
+: 1754523522:0;clear
+: 1754524168:0;python flashcards.py
+: 1754524257:0;clear
+: 1754524258:0;python flashcards.py
+: 1754524546:0;clear
+: 1754524547:0;python flashcards.py
+: 1754524582:0;clear
+: 1754524583:0;python flashcards.py
+: 1754524736:0;clear
+: 1754524753:0;python flashcards.py
+: 1754524789:0;clear
+: 1754525113:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754525113:0;ource /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754542208:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754542212:0;clear
+: 1754708545:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754708545:0;ource /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754708574:0;clear
+: 1754708582:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754708585:0;clear
+: 1754710182:0;code flashcards_v_1.1.py
+: 1754710353:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754711081:0;python flashcards_v_1.1.py
+: 1754711976:0;clear
+: 1754711976:0;python flashcards_v_1.1.py
+: 1754712448:0;clear
+: 1754712449:0;python flashcards_v_1.1.py
+: 1754712995:0;clear
+: 1754712995:0;python flashcards_v_1.1.py
+: 1754717785:0;clear
+: 1754717786:0;python flashcards_v_1.1.py
+: 1754718113:0;clear
+: 1754718114:0;python flashcards_v_1.1.py
+: 1754718166:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754718171:0;clear
+: 1754718174:0;python flashcards_v_1.1.py
+: 1754718322:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754718325:0;clear
+: 1754718327:0;python flashcards_v_1.1.py
+: 1754718552:0;clear
+: 1754718556:0;python flashcards_v_1.1.py
+: 1754718853:0;clear
+: 1754718854:0;python flashcards_v_1.1.py
+: 1754719631:0;clear
+: 1754719634:0;python flashcards_v_1.1.py
+: 1754719877:0;clear
+: 1754719878:0;python flashcards_v_1.1.py
+: 1754720161:0;clear
+: 1754720162:0;python flashcards_v_1.1.py
+: 1754721776:0;clear
+: 1754721777:0;python flashcards_v_1.1.py
+: 1754723406:0;clear
+: 1754723407:0;python flashcards_v_1.1.py
+: 1754723509:0;clear
+: 1754723973:0;python flashcards_v_1.1.py
+: 1754724016:0;clear
+: 1754724017:0;python flashcards_v_1.1.py
+: 1754743783:0;clear
+: 1754743785:0;python flashcards_v_1.1.py
+: 1754743828:0;clear
+: 1754743982:0;python flashcards_v_1.1.py
+: 1754744075:0;clear
+: 1754744076:0;python flashcards_v_1.1.py
+: 1754744454:0;clear
+: 1754744455:0;python flashcards_v_1.1.py
+: 1754744465:0;clear
+: 1754744466:0;python flashcards_v_1.1.py
+: 1754744804:0;clear
+: 1754744805:0;python flashcards_v_1.1.py
+: 1754745295:0;clear
+: 1754745296:0;python flashcards_v_1.1.py
+: 1754745899:0;clear
+: 1754745901:0;python flashcards_v_1.1.py
+: 1754745995:0;clear
+: 1754745996:0;python flashcards_v_1.1.py
+: 1754746150:0;clear
+: 1754746151:0;python flashcards_v_1.1.py
+: 1754746396:0;CLEAR
+: 1754746399:0;clear
+: 1754746406:0;python flashcards_v_1.1.py
+: 1754746487:0;clear
+: 1754746488:0;python flashcards_v_1.1.py
+: 1754746500:0;clear
+: 1754746507:0;python flashcards_v_1.1.py
+: 1754746588:0;clear
+: 1754746589:0;python flashcards_v_1.1.py
+: 1754746617:0;python flashcards.py
+: 1754746660:0;clear
+: 1754746662:0;python flashcards.py
+: 1754746738:0;clear
+: 1754746739:0;python flashcards.py
+: 1754746770:0;clear
+: 1754746771:0;python flashcards.py
+: 1754746783:0;clear
+: 1754746784:0;python flashcards.py
+: 1754746812:0;clear
+: 1754746813:0;python flashcards.py
+: 1754746886:0;clear
+: 1754746911:0;python flashcards_v_1.1.py
+: 1754747451:0;clear
+: 1754747454:0;python flashcards_v_1.1.py
+: 1754747671:0;clear
+: 1754747673:0;python flashcards_v_1.1.py
+: 1754747952:0;code flashcards_v_1.2.py
+: 1754747975:0;python flashcards_v_1.2.py
+: 1754748116:0;clear
+: 1754748119:0;python flashcards_v_1.2.py
+: 1754748278:0;clear
+: 1754748630:0;python flashcards_v_1.2.py
+: 1754748733:0;clear
+: 1754748738:0;python flashcards_v_1.1.py
+: 1754748982:0;clear
+: 1754748985:0;python flashcards_v_1.1.py
+: 1754749315:0;clear
+: 1754749316:0;python flashcards_v_1.1.py
+: 1754749625:0;clear
+: 1754749628:0;python flashcards_v_1.1.py
+: 1754749756:0;pip install torch torchvision torchaudio
+: 1754752666:0;pip install easyocr
+: 1754753248:0;clear
+: 1754753271:0;python flashcards_v_1.1.py
+: 1754754207:0;clear
+: 1754754208:0;python flashcards_v_1.1.py
+: 1754754374:0;clear
+: 1754754376:0;python flashcards_v_1.1.py
+: 1754754491:0;clear
+: 1754754493:0;python flashcards_v_1.1.py
+: 1754757310:0;pip install paddlepaddle
+: 1754757710:0;pip install "paddleocr>=2.0.1"
+: 1754757973:0;clear
+: 1754758299:0;python flashcards_v_1.1.py
+: 1754758422:0;clear
+: 1754758504:0;python flashcards_v_1.1.py
+: 1754759118:0;clear
+: 1754759119:0;python flashcards_v_1.1.py
+: 1754759227:0;clear
+: 1754759228:0;python flashcards_v_1.1.py
+: 1754759906:0;clear
+: 1754759907:0;python flashcards_v_1.1.py
+: 1754760366:0;clear
+: 1754760367:0;python flashcards_v_1.1.py
+: 1754761325:0;clear
+: 1754761327:0;python flashcards_v_1.1.py
+: 1754761515:0;clear
+: 1754761521:0;python flashcards_v_1.1.py
+: 1754761710:0;clear
+: 1754761712:0;python flashcards_v_1.1.py
+: 1754762022:0;clear
+: 1754762023:0;python flashcards_v_1.1.py
+: 1754762173:0;clear
+: 1754762175:0;python flashcards_v_1.1.py
+: 1754762454:0;clear
+: 1754762456:0;python flashcards_v_1.1.py
+: 1754762681:0;clear
+: 1754762683:0;python flashcards_v_1.1.py
+: 1754762797:0;clear
+: 1754762798:0;python flashcards_v_1.1.py
+: 1754763032:0;clear
+: 1754763034:0;python flashcards_v_1.1.py
+: 1754796499:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754796581:0;clear
+: 1754796592:0;python flashcards_v_1.1.py
+: 1754798622:0;clear
+: 1754798623:0;python flashcards_v_1.1.py
+: 1754799146:0;clear
+: 1754799147:0;python flashcards_v_1.1.py
+: 1754800086:0;code sudachi_test.py
+: 1754800108:0;python sudachi_test.py
+: 1754802321:0;clear
+: 1754802553:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754802651:0;clear
+: 1754802656:0;python flashcards_v_1.1.py
+: 1754802675:0;clear
+: 1754802676:0;python flashcards_v_1.1.py
+: 1754804252:0;clear
+: 1754804254:0;python flashcards_v_1.1.py
+: 1754805828:0;python flashcards_v_1.2.py
+: 1754846473:0;source /home/guts/Projects/anki_flashcards/venv/bin/activate
+: 1754848170:0;python flashcards_v_1.2.py
+: 1754848412:0;code flashcards_v_1.3.py
+: 1754848720:0;python flashcards_v_1.3.py
+: 1754848739:0;clear
+: 1754848745:0;python flashcards_v_1.3.py
+: 1754849370:0;clear
+: 1754849523:0;deactivate
+: 1754849659:0;git init
+: 1754849668:0;git add .

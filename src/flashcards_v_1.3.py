@@ -133,18 +133,18 @@ def assign_to_columns(ocr_results, table_width):
 # --- 3. MAIN EXECUTION ---
 def main():
     # --- STAGE A: FIND AND ISOLATE THE TABLE ---
-    input_path = Path(input("Enter your image/s path (seperate with commas for multiple files): "))
+    input_path = input("Enter your image/s path (seperate with commas for multiple files): ")
     source_paths = [Path(p.strip()) for p in input_path.split(',')]
     print(f"Processing {(len(source_paths))} file(s)....")
-    reader = easyocr.Reader(['ja', 'en'], gpu=True)
+    reader = easyocr.Reader(['ja', 'en'], gpu=False)
     print("Initializing EasyOCR... (this can be slow on first run)")
     for path in source_paths:
         print(f"Processing {path} ")
-        if input_path.suffix.lower() == '.heic':
-            img_path = input_path.with_suffix('.jpeg')
-            convert_to_jpeg(input_path, img_path)
+        if path.suffix.lower() in ['.heic', '.heif']:
+            img_path = path.with_suffix('.jpeg')
+            convert_to_jpeg(path, img_path)
         else:
-            img_path = str(input_path)
+            img_path = str(path)
 
         img = cv.imread(str(img_path))
         if img is None:

@@ -205,6 +205,7 @@ def main():
     else:
         print("\n⚠️ No cards were created. Please check your input images.")
 
-        
+
+
 if __name__ == "__main__":
     main()

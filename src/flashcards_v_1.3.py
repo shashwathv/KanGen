@@ -10,7 +10,6 @@ import re
 
 # --- 1. SETUP AND CONSTANTS ---
 register_heif_opener()
-INPUT_IMG_PATH = "test.jpeg"
 OUTPUT_DECK_PATH = "output_deck.apkg"
 DECK_NAME = "Kanji Flashcards"
 MODEL_ID = 2126758096
@@ -134,71 +133,78 @@ def assign_to_columns(ocr_results, table_width):
 # --- 3. MAIN EXECUTION ---
 def main():
     # --- STAGE A: FIND AND ISOLATE THE TABLE ---
-    source_path = Path(INPUT_IMG_PATH)
-    if source_path.suffix.lower() == '.heic':
-        img_path = source_path.with_suffix('.jpeg')
-        convert_to_jpeg(INPUT_IMG_PATH, img_path)
-    else:
-        img_path = str(source_path)
-
-    img = cv.imread(str(img_path))
-    if img is None:
-        raise ValueError(f"Could not read image from {img_path}")
-    
-    table_contour = find_table_contour(img)
-    if table_contour is None:
-        print("No table contour was found.")
-        return
-
-    warped_table = warp_perspective(img, table_contour)
-    
-    # --- STAGE B: EXTRACT ALL TEXT BLOCKS WITH EASYOCR ---
+    input_path = Path(input("Enter your image/s path (seperate with commas for multiple files): "))
+    source_paths = [Path(p.strip()) for p in input_path.split(',')]
+    print(f"Processing {(len(source_paths))} file(s)....")
+    reader = easyocr.Reader(['ja', 'en'], gpu=True)
     print("Initializing EasyOCR... (this can be slow on first run)")
-    reader = easyocr.Reader(['ja', 'en'], gpu=False)
-    results = reader.readtext(warped_table, detail=1)
+    for path in source_paths:
+        print(f"Processing {path} ")
+        if input_path.suffix.lower() == '.heic':
+            img_path = input_path.with_suffix('.jpeg')
+            convert_to_jpeg(input_path, img_path)
+        else:
+            img_path = str(input_path)
 
-    if not results:
-        print("No text detected by EasyOCR.")
-        return
-
-    # --- STAGE C: PARSE AND GROUP RESULTS INTO COLUMNS ---
-    table_width = warped_table.shape[1]
-    columns = assign_to_columns(results, table_width)
-    kanji_col, readings_col, examples_col = columns[0], columns[1], columns[2]
-
-    # --- STAGE D: PROCESS, CREATE NOTES, AND GENERATE DECK ---
-    main_kanji_entries = [item for item in kanji_col if is_single_kanji(item['text'])]
-    print(f"\nSuccessfully identified {len(main_kanji_entries)} main Kanji entries. Creating Anki notes...\n")
-
-    for i in range(len(main_kanji_entries)):
-        current_kanji = main_kanji_entries[i]
+        img = cv.imread(str(img_path))
+        if img is None:
+            raise ValueError(f"Could not read image from {img_path}")
         
-        row_y_start = current_kanji['y'] - 20
-        row_y_end = main_kanji_entries[i+1]['y'] - 20 if i + 1 < len(main_kanji_entries) else warped_table.shape[0]
+        table_contour = find_table_contour(img)
+        if table_contour is None:
+            print("No table contour was found.")
+            return
 
-        readings_text = " ".join([item['text'] for item in readings_col if row_y_start <= item['y'] < row_y_end])
-        examples_text = " ".join([item['text'] for item in examples_col if row_y_start <= item['y'] < row_y_end])
+        warped_table = warp_perspective(img, table_contour)
         
-        # Combine all text for the SudachiPy parser
-        full_info_text = f"{readings_text} {examples_text}"
-        
-        meaning, on_yomi, kun_yomi, example = parse_info_text(full_info_text, tokenizer_obj)
-        
-        # Create the Anki Note
-        note = genanki.Note(
-            model=my_kanji_model,
-            fields=[current_kanji['text'], meaning, on_yomi, kun_yomi, example]
-        )
-        list_of_cards.append(note)
-        print(f"Created note for: {current_kanji['text']}")
+        # --- STAGE B: EXTRACT ALL TEXT BLOCKS WITH EASYOCR ---
+        results = reader.readtext(warped_table, detail=1)
+
+        if not results:
+            print("No text detected by EasyOCR.")
+            return
+
+        # --- STAGE C: PARSE AND GROUP RESULTS INTO COLUMNS ---
+        table_width = warped_table.shape[1]
+        columns = assign_to_columns(results, table_width)
+        kanji_col, readings_col, examples_col = columns[0], columns[1], columns[2]
+
+        # --- STAGE D: PROCESS, CREATE NOTES, AND GENERATE DECK ---
+        main_kanji_entries = [item for item in kanji_col if is_single_kanji(item['text'])]
+        print(f"\nSuccessfully identified {len(main_kanji_entries)} main Kanji entries. Creating Anki notes...\n")
+
+        for i in range(len(main_kanji_entries)):
+            current_kanji = main_kanji_entries[i]
+            
+            row_y_start = current_kanji['y'] - 20
+            row_y_end = main_kanji_entries[i+1]['y'] - 20 if i + 1 < len(main_kanji_entries) else warped_table.shape[0]
+
+            readings_text = " ".join([item['text'] for item in readings_col if row_y_start <= item['y'] < row_y_end])
+            examples_text = " ".join([item['text'] for item in examples_col if row_y_start <= item['y'] < row_y_end])
+            
+            # Combine all text for the SudachiPy parser
+            full_info_text = f"{readings_text} {examples_text}"
+            
+            meaning, on_yomi, kun_yomi, example = parse_info_text(full_info_text, tokenizer_obj)
+            
+            # Create the Anki Note
+            note = genanki.Note(
+                model=my_kanji_model,
+                fields=[current_kanji['text'], meaning, on_yomi, kun_yomi, example]
+            )
+            list_of_cards.append(note)
+            print(f"Created note for: {current_kanji['text']}")
 
     # --- STAGE E: SAVE THE ANKI DECK FILE ---
-    deck = genanki.Deck(DECK_ID, DECK_NAME)
-    for note in list_of_cards:
-        deck.add_note(note)
-    
-    genanki.Package(deck).write_to_file(OUTPUT_DECK_PATH)
-    print(f"\nSuccessfully created Anki deck with {len(list_of_cards)} cards at: {OUTPUT_DECK_PATH}")
+    if list_of_cards:
+        deck = genanki.Deck(DECK_ID, DECK_NAME)
+        for note in list_of_cards:
+            deck.add_note(note)
+        genanki.Package(deck).write_to_file(OUTPUT_DECK_PATH)
+        print(f"\n🎉 Successfully created Anki deck with {len(list_of_cards)} cards at: {OUTPUT_DECK_PATH}")
+    else:
+        print("\n⚠️ No cards were created. Please check your input images.")
 
+        
 if __name__ == "__main__":
     main()

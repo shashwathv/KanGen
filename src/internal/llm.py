@@ -5,10 +5,10 @@ from typing import Tuple, Optional, Dict, List
 
 from google import genai
 
-from kangen.parser import SudachiParser
-from kangen.validator import KanjiValidator
-from kangen.grouper import KanjiEntry
-from kangen.config import VALIDATION_CONFIDENCE_THRESHOLD
+from internal.parser import SudachiParser
+from internal.validator import KanjiValidator
+from internal.grouper import KanjiEntry
+from internal.config import VALIDATION_CONFIDENCE_THRESHOLD
 
 
 BATCH_SIZE = 5  # SAFE for free tier

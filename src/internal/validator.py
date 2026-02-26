@@ -2,8 +2,8 @@
 import re
 from typing import Dict, List, Tuple
 from sudachipy import Dictionary, Tokenizer  #type: ignore
-from kangen.grouper import KanjiEntry
-from kangen.config import VALIDATION_CONFIDENCE_THRESHOLD
+from internal.grouper import KanjiEntry
+from internal.config import VALIDATION_CONFIDENCE_THRESHOLD
 
 class ValidationResult:
     """Result of validating a kanji entry."""

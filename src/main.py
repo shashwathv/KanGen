@@ -11,17 +11,17 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.append(current_dir)
 
-from kangen.image_processing import (
+from internal.image_processing import (
     convert_heic_to_jpeg, 
     load_image, 
     find_table_contour, 
     warp_perspective,
     save_debug_image
 )
-from kangen.ocr import SmartOCRService
-from kangen.grouper import KanjiGrouper
-from kangen.llm import SmartEnhancer
-from kangen.anki import AnkiGenerator
+from internal.ocr import SmartOCRService
+from internal.grouper import KanjiGrouper
+from internal.llm import SmartEnhancer
+from internal.anki import AnkiGenerator
 
 # Load environment variables from .env file
 load_dotenv()

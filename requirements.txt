@@ -11,3 +11,4 @@ easyocr>=1.7.0
 google-generativeai>=0.3.0
 sudachipy>=0.6.0
 sudachidict_core>=20210802
+streamlit>=1.30.0

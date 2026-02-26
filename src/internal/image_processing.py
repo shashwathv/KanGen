@@ -5,7 +5,7 @@ from PIL import Image
 from pathlib import Path
 from typing import Optional, Tuple
 from pillow_heif import register_heif_opener  #type: ignore
-from kangen.config import MIN_CONTOUR_AREA, APPROX_POLY_EPSILON
+from internal.config import MIN_CONTOUR_AREA, APPROX_POLY_EPSILON
 
 register_heif_opener()
 

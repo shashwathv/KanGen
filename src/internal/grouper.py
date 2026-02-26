@@ -2,8 +2,8 @@
 import numpy as np
 from typing import List, Dict, Optional
 from scipy.spatial import KDTree #type: ignore
-from kangen.ocr import TextBlock
-from kangen.config import PROXIMITY_RADIUS, KANJI_START, KANJI_END
+from internal.ocr import TextBlock
+from internal.config import PROXIMITY_RADIUS, KANJI_START, KANJI_END
 
 class KanjiEntry:
     """Represents a grouped kanji entry with associated text."""

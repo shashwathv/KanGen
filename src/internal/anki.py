@@ -2,7 +2,7 @@
 import genanki #type: ignore
 from pathlib import Path
 from typing import List, Dict, Optional
-from kangen.config import DECK_ID, DECK_NAME, MODEL_ID, MODEL_NAME, FIELDS, TEMPLATES, CSS
+from internal.config import DECK_ID, DECK_NAME, MODEL_ID, MODEL_NAME, FIELDS, TEMPLATES, CSS
 
 class AnkiGenerator:
     """Generates Anki deck packages with validation."""

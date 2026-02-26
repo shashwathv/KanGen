@@ -170,14 +170,31 @@ class SudachiParser(BaseParser):
 
         morphemes = self.tokenizer.tokenize(kanji)
         for m in morphemes:
-            r = m.reading_form()
+            r = m.reading_form()  # Always returns katakana in Sudachi
             if not r:
                 continue
 
-            # Heuristic (linguistically correct):
-            # single-kanji verbs/adjectives → kun-yomi
-            if len(kanji) == 1 and m.part_of_speech()[0] in ('動詞', '形容詞'):
+            pos = m.part_of_speech()[0]
+            surface = m.surface()
+            kanji_count = sum(1 for c in surface if '\u4e00' <= c <= '\u9fff')
+
+            # Rule 1: Multi-kanji compounds are almost always on-yomi (sino-Japanese)
+            if kanji_count >= 2:
+                readings['on'].add(r)
+
+            # Rule 2: Verbs, adjectives, adverbs → kun-yomi (native Japanese words)
+            elif pos in ('動詞', '形容詞', '形容動詞', '副詞'):
                 readings['kun'].add(self._to_hiragana(r))
+
+            # Rule 3: Single-kanji nouns — use reading length as proxy
+            # On-yomi tend to be 1–2 morae; kun-yomi are often 2–4+
+            elif kanji_count == 1:
+                if len(r) <= 2:
+                    readings['on'].add(r)
+                else:
+                    readings['kun'].add(self._to_hiragana(r))
+
+            # Fallback: treat as on-yomi
             else:
                 readings['on'].add(r)
 

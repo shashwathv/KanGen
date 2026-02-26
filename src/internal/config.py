@@ -18,18 +18,117 @@ FIELDS = [
 
 # Card Styling
 CSS = """
+@import url("_noto-sans-jp.css");
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 .card {
-    font-family: sans-serif;
+    font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: #FAFAF7;
+    color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+}
+
+.card-inner {
+    background: #ffffff;
+    border: 1px solid #e8e4db;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     text-align: center;
-    font-size: 24px;
-    color: black;
-    background-color: white;
 }
-h1 {
-    font-size: 100px;
+
+/* FRONT */
+.kanji-display {
+    font-size: 110px;
+    line-height: 1.1;
+    color: #1a1a1a;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
 }
-#answer {
+
+.front-hint {
+    font-size: 13px;
+    color: #999;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* BACK */
+.divider {
+    border: none;
+    border-top: 1px solid #e8e4db;
     margin: 20px 0;
+}
+
+.meaning {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 18px;
+}
+
+.readings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.reading-box {
+    background: #f5f3ee;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.reading-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.reading-label.on  { color: #c0392b; }
+.reading-label.kun { color: #2980b9; }
+
+.reading-value {
+    font-size: 20px;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+}
+
+.reading-value.empty {
+    font-size: 14px;
+    color: #ccc;
+    font-style: italic;
+}
+
+.example-box {
+    background: #f9f7f2;
+    border-left: 3px solid #c8b97a;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 15px;
+    color: #444;
+    line-height: 1.6;
+}
+
+.example-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c8b97a;
+    margin-bottom: 4px;
 }
 """
 
@@ -37,17 +136,47 @@ h1 {
 TEMPLATES = [
     {
         'name': 'Recognition card',
-        'qfmt': '<h1>{{Kanji}}</h1>',
-        'afmt': """{{FrontSide}}
-        <hr id="answer">
-        <div class="meaning">{{Meaning}}</div><br>
-        <div class="readings">
-            <b>On:</b> {{On-yomi}}<br>
-            <b>Kun:</b> {{Kun-yomi}}
-        </div><br>
-        <div class="examples">
-            <i>{{Example}}</i>
-        </div>"""
+        'qfmt': """
+<div class="card-inner">
+    <div class="kanji-display">{{Kanji}}</div>
+    <div class="front-hint">What does this mean?</div>
+</div>
+""",
+        'afmt': """
+<div class="card-inner">
+    <div class="kanji-display">{{Kanji}}</div>
+    <hr class="divider">
+    <div class="meaning">{{Meaning}}</div>
+
+    <div class="readings-grid">
+        <div class="reading-box">
+            <div class="reading-label on">▶ On-yomi</div>
+            {{#On-yomi}}
+            <div class="reading-value">{{On-yomi}}</div>
+            {{/On-yomi}}
+            {{^On-yomi}}
+            <div class="reading-value empty">—</div>
+            {{/On-yomi}}
+        </div>
+        <div class="reading-box">
+            <div class="reading-label kun">▷ Kun-yomi</div>
+            {{#Kun-yomi}}
+            <div class="reading-value">{{Kun-yomi}}</div>
+            {{/Kun-yomi}}
+            {{^Kun-yomi}}
+            <div class="reading-value empty">—</div>
+            {{/Kun-yomi}}
+        </div>
+    </div>
+
+    {{#Example}}
+    <div class="example-box">
+        <div class="example-label">Example</div>
+        {{Example}}
+    </div>
+    {{/Example}}
+</div>
+"""
     }
 ]
 

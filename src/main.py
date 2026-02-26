@@ -12,9 +12,9 @@ if current_dir not in sys.path:
     sys.path.append(current_dir)
 
 from internal.image_processing import (
-    convert_heic_to_jpeg, 
-    load_image, 
-    find_table_contour, 
+    convert_heic_to_jpeg,
+    load_image,
+    find_table_contour,
     warp_perspective,
     save_debug_image
 )
@@ -33,17 +33,16 @@ load_dotenv()
 @click.option('--api-key', envvar='GEMINI_API_KEY', help='Google Gemini API Key (or set GEMINI_API_KEY env var).')
 @click.option('--debug-images', is_flag=True, help='Save debug images (blobs, contours).')
 @click.option('--no-warp', is_flag=True, help='Skip perspective correction (process image as-is).')
-@click.option('--proximity', default=100, help='Proximity radius for grouping text (pixels).')
-def main(input_paths, output, gpu, api_key, debug_images, no_warp, proximity):
+def main(input_paths, output, gpu, api_key, debug_images, no_warp):
     """
     KanGen: Generate Anki Flashcards from Kanji Images.
-    
-    New Smart Architecture - Layout Agnostic!
-    - Extracts all text without column assumptions
-    - Groups kanji with nearby text by proximity
-    - Validates readings using dictionary
-    - Self-correcting with AI enhancement
-    
+
+    Layout-agnostic architecture:
+    - Extracts every unique kanji character from the image
+    - Looks up readings via Sudachi dictionary
+    - Enhances with Gemini AI in a single batched request
+    - Validates and writes to Anki deck
+
     INPUT_PATHS: One or more paths to images (JPEG, PNG, HEIC) or directories.
     """
     if not input_paths:
@@ -57,22 +56,22 @@ def main(input_paths, output, gpu, api_key, debug_images, no_warp, proximity):
         if not path.exists():
             click.echo(f"⚠️ Path does not exist: {path}")
             continue
-            
+
         if path.is_dir():
             expanded_paths.extend(list(path.glob('*')))
         else:
             expanded_paths.append(path)
-            
+
     # Filter valid extensions
     valid_exts = {'.jpg', '.jpeg', '.png', '.heic', '.heif'}
     source_files = [p for p in expanded_paths if p.suffix.lower() in valid_exts]
-    
+
     if not source_files:
         click.echo("❌ No valid image files found.")
         return
 
     click.echo(f"📸 Processing {len(source_files)} file(s)...")
-    
+
     # Validate output path
     output_path = Path(output)
     if output_path.exists():
@@ -87,44 +86,44 @@ def main(input_paths, output, gpu, api_key, debug_images, no_warp, proximity):
 
     # Initialize Services
     click.echo("🔧 Initializing services...")
-    
+
     try:
         ocr_service = SmartOCRService(use_gpu=gpu)
     except Exception as e:
         click.echo(f"❌ Failed to initialize OCR: {e}", err=True)
-        click.echo("💡 Hint: Try running with --no-gpu or check EasyOCR installation")
+        click.echo("💡 Hint: Try running with --no-gpu or check PaddleOCR installation")
         return
-    
+
     try:
-        grouper = KanjiGrouper(proximity_radius=proximity)
+        grouper = KanjiGrouper()
         enhancer = SmartEnhancer(api_key=api_key)
         anki_generator = AnkiGenerator()
     except Exception as e:
         click.echo(f"❌ Failed to initialize services: {e}", err=True)
         return
-    
+
     if not api_key:
         click.echo("⚠️ No GEMINI_API_KEY found. Using fallback mode (may be less accurate).")
 
     # Process each image
     total_kanji_found = 0
     total_cards_created = 0
-    
+
     for file_path in tqdm(source_files, desc="Processing Images"):
         try:
             # Step 1: Image Preprocessing
             img_path = convert_heic_to_jpeg(file_path)
             original_img = load_image(img_path)
-            
-            # Optional: Perspective correction for tables
+
+            # Optional: Perspective correction
             if not no_warp:
                 table_contour = find_table_contour(original_img)
                 if table_contour is not None:
                     processed_img = warp_perspective(original_img, table_contour)
-                    
+
                     if debug_images:
                         save_debug_image(
-                            original_img, 
+                            original_img,
                             debug_dir / f"{file_path.stem}_contour.png",
                             table_contour
                         )
@@ -133,55 +132,52 @@ def main(input_paths, output, gpu, api_key, debug_images, no_warp, proximity):
                     tqdm.write(f"⚠️ No table contour found in {file_path.name}, using full image")
             else:
                 processed_img = original_img
-            
+
             if debug_images:
                 save_debug_image(
                     processed_img,
                     debug_dir / f"{file_path.stem}_processed.png"
                 )
-            
-            # Step 2: Smart OCR - Extract all text with context
+
+            # Step 2: OCR — extract all text blocks
             text_blocks = ocr_service.extract_all_text_with_context(processed_img)
-            
+
             if not text_blocks:
                 tqdm.write(f"⚠️ No text detected in {file_path.name}")
                 continue
-            
+
             tqdm.write(f"📝 Detected {len(text_blocks)} text blocks in {file_path.name}")
-            
-            # Step 3: Group by proximity
+
+            # Step 3: Extract all unique kanji (layout-agnostic)
             kanji_entries = grouper.group_by_proximity(text_blocks)
-            
+
             if not kanji_entries:
-                tqdm.write(f"⚠️ No kanji entries found in {file_path.name}")
+                tqdm.write(f"⚠️ No kanji found in {file_path.name}")
                 continue
-            
+
             total_kanji_found += len(kanji_entries)
             tqdm.write(f"🎯 Found {len(kanji_entries)} kanji entries in {file_path.name}")
-            
-            # Step 4: Enhance and add to deck
-            for entry in kanji_entries:
+
+            # Step 4: Enhance ALL entries in one single batched API call
+            try:
+                enhanced_cards = enhancer.enhance_all(kanji_entries)
+            except Exception as e:
+                tqdm.write(f"❌ Enhancement failed for {file_path.name}: {e}")
+                enhanced_cards = []
+
+            for enhanced_card in enhanced_cards:
                 try:
-                    # Enhance with validation-based routing
-                    enhanced_card = enhancer.enhance(entry)
-                    
-                    if enhanced_card:
-                        # Add to Anki deck
-                        success = anki_generator.add_card(
-                            enhanced_card.kanji,
-                            enhanced_card.meaning,
-                            enhanced_card.on_yomi,
-                            enhanced_card.kun_yomi,
-                            enhanced_card.example
-                        )
-                        
-                        if success:
-                            total_cards_created += 1
-                    else:
-                        tqdm.write(f"⚠️ Could not enhance '{entry.kanji}'")
-                        
+                    success = anki_generator.add_card(
+                        enhanced_card.kanji,
+                        enhanced_card.meaning,
+                        enhanced_card.on_yomi,
+                        enhanced_card.kun_yomi,
+                        enhanced_card.example
+                    )
+                    if success:
+                        total_cards_created += 1
                 except Exception as e:
-                    tqdm.write(f"❌ Error processing '{entry.kanji}': {e}")
+                    tqdm.write(f"❌ Error adding card for '{enhanced_card.kanji}': {e}")
 
         except Exception as e:
             tqdm.write(f"❌ Failed to process {file_path.name}: {e}")
@@ -191,12 +187,12 @@ def main(input_paths, output, gpu, api_key, debug_images, no_warp, proximity):
     click.echo("📊 Processing Summary:")
     click.echo(f"   Images processed: {len(source_files)}")
     click.echo(f"   Kanji entries found: {total_kanji_found}")
-    
+
     stats = anki_generator.get_statistics()
     click.echo(f"   Cards created: {stats['created']}")
     click.echo(f"   Cards skipped: {stats['skipped']}")
     click.echo("="*60)
-    
+
     if anki_generator.save_package(output_path):
         click.echo(f"\n✅ Success! Deck saved to: {output_path}")
     else:

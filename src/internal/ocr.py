@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-import easyocr #type: ignore
 import numpy as np
 from typing import List, Dict, Tuple
+from paddleocr import PaddleOCR  # type: ignore
 from internal.config import (
-    MIN_OCR_CONFIDENCE, 
+    MIN_OCR_CONFIDENCE,
     KANJI_START, KANJI_END,
     HIRAGANA_START, HIRAGANA_END,
     KATAKANA_START, KATAKANA_END
 )
 
+
 class TextBlock:
     """Represents a single detected text block with metadata."""
+
     def __init__(self, bbox, text: str, confidence: float):
         self.bbox = bbox
         self.text = text
@@ -19,28 +21,24 @@ class TextBlock:
         self.is_kanji = self._contains_kanji(text)
         self.is_kana = self._is_kana(text)
         self.is_latin = text.isascii()
-    
+
     def _calculate_center(self, bbox) -> Tuple[float, float]:
-        """Calculate center point of bounding box."""
         x_coords = [point[0] for point in bbox]
         y_coords = [point[1] for point in bbox]
-        return (sum(x_coords) / 4, sum(y_coords) / 4)
-    
+        return (sum(x_coords) / len(x_coords), sum(y_coords) / len(y_coords))
+
     def _contains_kanji(self, text: str) -> bool:
-        """Check if text contains any kanji characters."""
         return any(KANJI_START <= char <= KANJI_END for char in text)
-    
+
     def _is_kana(self, text: str) -> bool:
-        """Check if text is purely hiragana or katakana."""
         return all(
-            (HIRAGANA_START <= char <= HIRAGANA_END or 
+            (HIRAGANA_START <= char <= HIRAGANA_END or
              KATAKANA_START <= char <= KATAKANA_END or
              char in 'ー・　 ()（）')
             for char in text
         )
-    
+
     def to_dict(self) -> Dict:
-        """Convert to dictionary format."""
         return {
             'text': self.text,
             'bbox': self.bbox,
@@ -51,38 +49,53 @@ class TextBlock:
             'is_latin': self.is_latin
         }
 
+
 class SmartOCRService:
     """
-    Enhanced OCR service that extracts all text with linguistic context.
-    No assumptions about layout or column structure.
+    OCR service backed by PaddleOCR.
+    Supports Japanese + English in a single pass.
+    CPU-friendly — no CUDA required, but will use GPU if available.
     """
-    
+
     def __init__(self, use_gpu: bool = False):
-        print("Initializing EasyOCR... (this may take a moment)")
-        self.reader = easyocr.Reader(['ja', 'en'], gpu=use_gpu)
+        print("Initializing PaddleOCR... (first run downloads models ~50MB)")
+        # lang='japan' covers kanji/kana + romaji/English in one model
+        import os
+        os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+
+        self.reader = PaddleOCR(
+            lang='japan',
+            use_angle_cls=True,   # handles rotated/tilted text (important for photos)
+            device='gpu' if use_gpu else 'cpu',
+        )
 
     def extract_all_text_with_context(self, image: np.ndarray) -> List[TextBlock]:
         """
-        Runs OCR and returns all detected text with linguistic metadata.
-        
-        Returns:
-            List of TextBlock objects containing text, position, and classification.
+        Runs PaddleOCR and returns all detected text as TextBlock objects.
+
+        PaddleOCR result format per line:
+            [bbox, (text, confidence)]
+        where bbox = [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]
         """
-        # Run OCR with detail=1 to get (bbox, text, confidence)
-        raw_results = self.reader.readtext(image, detail=1)
-        
-        # Filter by confidence and convert to TextBlock objects
+        raw_results = self.reader.ocr(image, cls=True)
+
         text_blocks = []
-        for (bbox, text, confidence) in raw_results:
-            if confidence >= MIN_OCR_CONFIDENCE:
-                block = TextBlock(bbox, text, confidence)
+
+        # PaddleOCR wraps results in an extra list layer
+        if not raw_results or raw_results[0] is None:
+            return text_blocks
+
+        for line in raw_results[0]:
+            bbox, (text, confidence) = line
+            if confidence >= MIN_OCR_CONFIDENCE and text.strip():
+                block = TextBlock(bbox, text.strip(), confidence)
                 text_blocks.append(block)
-        
+
         return text_blocks
-    
-    def filter_by_type(self, blocks: List[TextBlock], 
-                       kanji: bool = False, 
-                       kana: bool = False, 
+
+    def filter_by_type(self, blocks: List[TextBlock],
+                       kanji: bool = False,
+                       kana: bool = False,
                        latin: bool = False) -> List[TextBlock]:
         """Filter text blocks by character type."""
         filtered = []

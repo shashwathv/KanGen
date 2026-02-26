@@ -10,12 +10,12 @@ Smart Architecture v2.0:
 """
 __version__ = "2.0.0"
 
-from kangen.ocr import SmartOCRService, TextBlock
-from kangen.grouper import KanjiGrouper, KanjiEntry
-from kangen.validator import KanjiValidator, ValidationResult
-from kangen.llm import SmartEnhancer, EnhancedCard, HybridParser
-from kangen.anki import AnkiGenerator
-from kangen.image_processing import (
+from internal.ocr import SmartOCRService, TextBlock
+from internal.grouper import KanjiGrouper, KanjiEntry
+from internal.validator import KanjiValidator, ValidationResult
+from internal.llm import SmartEnhancer, EnhancedCard, HybridParser
+from internal.anki import AnkiGenerator
+from internal.image_processing import (
     convert_heic_to_jpeg,
     load_image,
     find_table_contour,

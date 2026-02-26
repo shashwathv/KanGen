@@ -2,7 +2,7 @@
 import easyocr #type: ignore
 import numpy as np
 from typing import List, Dict, Tuple
-from kangen.config import (
+from internal.config import (
     MIN_OCR_CONFIDENCE, 
     KANJI_START, KANJI_END,
     HIRAGANA_START, HIRAGANA_END,

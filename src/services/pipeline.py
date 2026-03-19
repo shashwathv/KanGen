@@ -3,6 +3,7 @@ from internal.ocr import SmartOCRService
 from internal.grouper import KanjiGrouper
 from internal.llm import SmartEnhancer
 from internal.anki import AnkiGenerator
+from services.storage import upload_file, download_file, get_presigned_url
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -13,7 +14,9 @@ grouper = KanjiGrouper()
 enhancer = SmartEnhancer(api_key=os.getenv("GEMINI_API_KEY"))
 
 def run_pipeline(file_path: str, job_id: str) -> dict:
-    file_path = Path(file_path)
+    local_input = f"/tmp/{job_id}_input.jpg"
+    download_file(file_path, local_input)
+    file_path = Path(local_input)
     anki_generator = AnkiGenerator()
     try:
         img_path = convert_heic_to_jpeg(file_path)
@@ -51,10 +54,13 @@ def run_pipeline(file_path: str, job_id: str) -> dict:
         
         output_path = Path(f"/tmp/{job_id}_output.apkg")
         anki_generator.save_package(output_path)
+        s3_key = f"outputs/{job_id}_output.apkg"
+        upload_file(str(output_path, s3_key))
+        url = get_presigned_url(s3_key)
         return {
             "status": "done",
             "output_path": output_path,
-            "download_url":f"/download/{job_id}",
+            "download_url":url,
             "stats": anki_generator.get_statistics()
         }
                 

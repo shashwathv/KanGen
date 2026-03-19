@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
-import os
+from fastapi.responses import RedirectResponse
 from routes.process import jobs
 
 router = APIRouter()
@@ -14,12 +13,8 @@ def download(job_id:str):
     if job.get("status") != "done":
         raise HTTPException(status_code=400, detail="File not ready")
     
-    output_path = job.get("output_path")
-    if not os.path.exists(output_path):
-        raise HTTPException(status_code=404, detail="File path does not exist")
+    download_url = job.get("download_url")
+    if not download_url:
+        raise HTTPException(status_code=404, detail="Download URL not available")
     
-    return FileResponse(
-        path=output_path, 
-        media_type="application/octet-stream", 
-        filename="kanji_deck.apkg"
-    )
+    return RedirectResponse(url=download_url)

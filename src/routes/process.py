@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, BackgroundTasks
 from models.schemas import JobResponse
 from services.pipeline import run_pipeline
+from services.storage import upload_file
 import uuid
 import shutil
 
@@ -18,7 +19,10 @@ async def process_image(image:UploadFile, background_tasks:BackgroundTasks):
     with open(tmp_path, "wb") as f:
         shutil.copyfileobj(image.file, f)
 
-    background_tasks.add_task(run_and_store, job_id, tmp_path)
+    s3_key = f"inputs/{job_id}_{image.filename}"
+    upload_file(tmp_path, s3_key)
+
+    background_tasks.add_task(run_and_store, job_id, s3_key)
 
     return JobResponse(job_id=job_id)
 

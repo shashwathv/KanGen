@@ -65,3 +65,10 @@ debug_blobs/
 # *.png
 # *.heic
 # *.heif
+
+# AWS
+*.pem
+kangen-key.pem
+
+# Docker
+.dockerignore

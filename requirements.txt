@@ -3,18 +3,24 @@ click>=8.0.0
 tqdm>=4.66.0
 python-dotenv>=1.0.0
 
+# API
+fastapi>=0.115.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
+boto3>=1.34.0
+
 # Anki Deck Generation
 genanki>=0.13.0
 
 # Image Processing
-numpy>=1.21.0
+numpy==1.26.4
 opencv-python>=4.0.0
 Pillow>=9.0.0
 pillow-heif>=0.10.0
-
-# OCR (PaddleOCR)
-paddleocr>=2.7.0
-paddlepaddle>=2.5.0
+ 
+# OCR (PaddleOCR) 
+paddleocr==2.7.3
+paddlepaddle==3.3.0
 
 # LLM Enhancement
 google-genai>=1.0.0

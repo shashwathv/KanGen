@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 s3 = boto3.client('s3', region_name='us-east-1')
-BUCKET = os.getenv("S#_BUCKET", "kangen-storage")
+BUCKET = os.getenv("S3_BUCKET", "kangen-storage")
 
 def upload_file(local_path: str, s3_key:str) -> bool:
     try:
@@ -15,7 +15,7 @@ def upload_file(local_path: str, s3_key:str) -> bool:
     
 def download_file(s3_key: str, local_path: str) -> bool:
     try:
-        s3.download_file(s3_key, local_path)
+        s3.download_file(BUCKET, s3_key, local_path)
         return True
     except Exception as e:
         print(f"Download failed: {e}")

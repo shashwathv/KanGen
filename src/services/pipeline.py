@@ -16,6 +16,9 @@ enhancer = SmartEnhancer(api_key=os.getenv("GEMINI_API_KEY"))
 def run_pipeline(file_path: str, job_id: str) -> dict:
     local_input = f"/tmp/{job_id}_input.jpg"
     download_file(file_path, local_input)
+    print(f"DEBUG: S3 key received: {file_path}")
+    print(f"DEBUG: Local input path: {local_input}")
+    print(f"DEBUG: File exists after download: {os.path.exists(local_input)}")
     file_path = Path(local_input)
     anki_generator = AnkiGenerator()
     try:
@@ -55,7 +58,7 @@ def run_pipeline(file_path: str, job_id: str) -> dict:
         output_path = Path(f"/tmp/{job_id}_output.apkg")
         anki_generator.save_package(output_path)
         s3_key = f"outputs/{job_id}_output.apkg"
-        upload_file(str(output_path, s3_key))
+        upload_file(str(output_path), s3_key)
         url = get_presigned_url(s3_key)
         return {
             "status": "done",

@@ -2,222 +2,410 @@
 
 ### Japanese Kanji Flashcard Generator
 
-> Turn your kanji study sheets into Anki decks — no retyping needed.
+> Turn your Japanese study sheets into Anki decks — no retyping required.
 
-KanGen takes **images of your study material** (tables, worksheets, textbook pages) and converts them into accurate, ready-to-import kanji flashcards. It uses OCR to read the image, a real Japanese dictionary to validate what it finds, and an optional AI layer to polish the output — but never to guess.
+KanGen converts images of kanji study material into structured, import-ready Anki flashcards. Upload a worksheet, textbook page, or handwritten study table, and KanGen extracts the kanji, validates the readings, and generates a `.apkg` deck automatically.
+
+Built with multimodal AI, dictionary-backed validation, and a production-ready API, KanGen eliminates the tedious process of manually creating flashcards from study resources.
+
+---
+
+## ✨ Features
+
+- 📸 Extract kanji directly from study sheets and textbook pages
+- 👁️ Multimodal page understanding using Gemini 2.5 Flash
+- 🛡️ Reading validation with SudachiPy to reduce hallucinations
+- 📇 Automatic Anki deck generation (`.apkg`)
+- ⚡ Command-line interface for local use
+- 🌐 FastAPI backend for web integrations
+- ☁️ AWS S3 integration with presigned download URLs
+- 🔄 Built-in retry and backoff handling for API rate limits
+- 🧹 Automatic cleanup of temporary files
 
 ---
 
 ## Why KanGen?
 
-You already have the study material. The annoying part is turning it into flashcards.
+You already have the study material.
 
+The difficult part is turning it into flashcards.
+
+```text
+Before KanGen
+
+📸 Study Sheet
+      ↓
+😩 Manually type dozens of entries
+      ↓
+📇 Flashcards
+
+After KanGen
+
+📸 Study Sheet
+      ↓
+⚡ One Command
+      ↓
+📇 Flashcards
 ```
-Before KanGen:  📸 study sheet  →  😩 manually type 40 kanji entries  →  📇 flashcards
-After KanGen:   📸 study sheet  →  ⚡ run one command                  →  📇 flashcards
-```
+
+Instead of spending time copying kanji, readings, and meanings into Anki, KanGen performs the entire workflow automatically.
 
 ---
 
-## Tech Stack
+## 🏗 Architecture
 
-| Layer                | Technology                                                       |
-|----------------------|------------------------------------------------------------------|
-| **CLI**              | [Click](https://click.palletsprojects.com/)                      |
-| **OCR**              | [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) (CPU/GPU)|
-| **Image Processing** | OpenCV, Pillow, pillow-heif                                      |
-| **Dictionary**       | [SudachiPy](https://github.com/WorksApplications/sudachi.rs)    |
-| **LLM Enhancement**  | [Google Gemini](https://ai.google.dev/) (optional, batched)      |
-| **Flashcard Output** | [genanki](https://github.com/kerrickstaley/genanki) → `.apkg`   |
-
----
-
-## How the Pipeline Works
-
-```
+```text
 📸 Study Image
       ↓
-🔲  Image Processing      — deskew, normalize, perspective correction
+🔲 Image Preprocessing
       ↓
-🔤  OCR (PaddleOCR)       — extract text blocks + bounding boxes
+👁️ Gemini 2.5 Flash
       ↓
-🔗  Spatial Grouping      — attach readings/meanings to the right kanji
+📋 Structured JSON Extraction
       ↓
-✅  Linguistic Validation  — verify against Sudachi dictionary
+🛡️ SudachiPy Validation
       ↓
-✨  LLM Enhancement        — polish meanings + generate examples (optional)
+📇 genanki Deck Generation
       ↓
-📦  Anki Deck (.apkg)     — import-ready flashcards
+📦 .apkg Output
+      ↓
+☁️ S3 Upload (API Mode)
 ```
 
-Each stage does **one job** and hands off clean data to the next.
+---
+
+## 🧠 How It Works
+
+### 1. Image Preprocessing
+
+Input images are normalized before extraction.
+
+Supported formats include:
+
+- JPG
+- PNG
+- HEIC
+
+Images are converted when necessary and prepared for visual analysis.
 
 ---
 
-## What Makes It Work
+### 2. Vision Extraction
 
-### 🎯 Kanji as Anchors
-Instead of guessing at rows, columns, or table borders, KanGen treats each **kanji character as an anchor** and pulls in nearby text (readings, meanings, examples) based on spatial proximity. This makes it **layout-agnostic** — it doesn't care how your study sheet is formatted.
+KanGen uses Gemini 2.5 Flash to understand the structure of Japanese study material.
 
-### 📚 Dictionary Truth, Not AI Guesses
-Readings and meanings come from **SudachiPy**, a real Japanese morphological analyzer. The AI can polish your English meanings or pick the best example sentence, but it **cannot invent or override** what the dictionary says.
+Unlike traditional OCR systems, the model can distinguish between:
 
-### 🔄 Fails Safely, Always
-If OCR misreads something → confidence drops, card gets flagged.
-If the LLM quota runs out → it finishes with dictionary-only data.
-If one kanji fails → the rest still process.
-No silent errors. No misleading cards.
+- Actual study content
+- Stroke-order diagrams
+- Practice boxes
+- Decorative annotations
+- Layout elements
 
----
-
-## Supported Input
-
-| ✅ Works great with         | ❌ Not supported (by design)  |
-|-----------------------------|-------------------------------|
-| Kanji tables                | Newspapers                    |
-| Textbook pages              | Novels / manga                |
-| Worksheets & study notes    | Handwritten kanji             |
-| Photos with mild distortion | Unannotated running text      |
+The output is structured JSON rather than raw text.
 
 ---
 
-## Getting Started
+### 3. Dictionary Validation
+
+Multimodal models are powerful but not infallible.
+
+To reduce incorrect readings, KanGen validates extracted readings against SudachiPy.
+
+This creates a hybrid workflow:
+
+```text
+AI Extraction
+      +
+Dictionary Validation
+      =
+Reliable Flashcards
+```
+
+---
+
+### 4. Deck Generation
+
+Validated entries are converted into Anki flashcards using `genanki`.
+
+Generated decks are compatible with:
+
+- Anki Desktop
+- AnkiDroid
+- AnkiMobile
+- AnkiWeb
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|---------|------------|
+| Vision Engine | Gemini 2.5 Flash |
+| Validation | SudachiPy |
+| CLI | Click |
+| REST API | FastAPI + Uvicorn |
+| Cloud Storage | AWS S3 (Boto3) |
+| Flashcard Generation | genanki |
+| Data Models | Pydantic |
+
+---
+
+## 📦 Installation
 
 ### Requirements
-- Python 3.10+
-- Gemini API key *(optional — works without it, just with less polished output)*
 
-### Setup & Run
+- Python 3.10+
+- Google Gemini API Key
+
+### Clone Repository
 
 ```bash
-# Clone and enter the project
 git clone https://github.com/your-username/KanGen.git
 cd KanGen
+```
 
-# Create and activate virtual environment
+### Create Virtual Environment
+
+```bash
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+```
+
+### Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# (Optional) Set your Gemini API key
-echo "GEMINI_API_KEY=your_key_here" > .env
+### Configure Environment Variables
 
-# Run on your study image
-python src/main.py path/to/study_image.jpg
+Create a `.env` file:
+
+```env
+GEMINI_API_KEY=your_api_key
+
+# Required only for API mode
+S3_BUCKET=your_bucket_name
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+```
+
+---
+
+## 🚀 Usage
+
+### CLI Mode
+
+Generate a deck directly from one or more images.
+
+```bash
+python src/main.py study_sheet.jpg
+```
+
+Specify an output path:
+
+```bash
+python src/main.py study_sheet.jpg \
+    --output my_kanji_deck.apkg
 ```
 
 ### CLI Options
 
-```
+```text
 Usage: main.py [OPTIONS] [INPUT_PATHS]...
 
 Options:
-  -o, --output TEXT    Output path for the Anki deck file (default: output_deck.apkg)
-  --gpu / --no-gpu     Use GPU for OCR (requires CUDA, default: CPU)
-  --api-key TEXT       Google Gemini API Key (or set GEMINI_API_KEY env var)
-  --debug-images       Save debug images (blobs, contours)
-  --no-warp            Skip perspective correction (process image as-is)
-  --help               Show this message and exit
+  -o, --output TEXT
+      Output deck path
+
+  --api-key TEXT
+      Gemini API key
+
+  --help
+      Show help message
 ```
 
-### Output
-A single file: **`output_deck.apkg`** — drag it into Anki or AnkiDroid and you're done.
+---
+
+## 🌐 API Mode
+
+Start the FastAPI server:
+
+```bash
+uvicorn src.api:app --reload
+```
+
+Interactive API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+### Endpoints
+
+#### Create Processing Job
+
+```http
+POST /v1/process
+```
+
+Upload an image and receive a job identifier.
+
+Response:
+
+```json
+{
+  "job_id": "abc123"
+}
+```
+
+#### Check Job Status
+
+```http
+GET /v1/jobs/{job_id}
+```
+
+Response:
+
+```json
+{
+  "status": "completed",
+  "download_url": "..."
+}
+```
+
+A presigned S3 URL is returned when deck generation completes.
 
 ---
 
-## Example Output
+## 📖 Example Flashcard
 
-| Field    | Value                |
-|----------|----------------------|
-| Kanji    | 住                   |
-| Meaning  | to live; to reside   |
-| On-yomi  | ジュウ               |
-| Kun-yomi | す(む)               |
-| Example  | ここに住んでいます。  |
-
----
-
-## Using Your Flashcards
-
-KanGen outputs `.apkg` files — the standard Anki deck format.
-
-| Platform               | App          | Cost          |
-|------------------------|--------------|---------------|
-| Windows / macOS / Linux| Anki Desktop | Free          |
-| Android                | AnkiDroid    | Free          |
-| iOS                    | AnkiMobile   | Paid (one-time)|
-| Browser                | AnkiWeb      | Free          |
-
-Download from [apps.ankiweb.net](https://apps.ankiweb.net), then **File → Import** your `.apkg`.
-
-> **Tip:** Create a free [AnkiWeb](https://ankiweb.net) account to sync decks across devices.
+| Field | Value |
+|---------|---------|
+| Kanji | 住 |
+| Meaning | To live; reside |
+| On-yomi | ジュウ |
+| Kun-yomi | す(む) |
+| Example Sentence | ここに住んでいます。 |
 
 ---
 
-## How LLM Usage Is Handled
+## 📚 Supported Input
 
-Gemini's free tier is request-limited, not token-limited. KanGen **batches all kanji into a single API request** to stay within quota. If the API is unavailable or the key is missing, it falls back to dictionary-only mode automatically — no crash, no prompt.
+### Recommended
+
+- Kanji study tables
+- Textbook pages
+- Worksheets
+- Vocabulary sheets
+- Annotated study notes
+
+### Not Supported
+
+- Newspapers
+- Novels
+- Manga
+- Long-form running text
+- General document OCR
+
+KanGen is optimized specifically for educational study material.
 
 ---
 
-## Project Status
+## ⚙️ Reliability Features
 
-### ✅ Shipped
-- Full image → Anki deck pipeline
-- Layout-agnostic kanji grouping
+### Automatic Retries
+
+Handles temporary failures such as:
+
+- HTTP 429 (Rate Limits)
+- HTTP 503 (Service Unavailable)
+
+with exponential backoff.
+
+### Background Processing
+
+Long-running generation tasks execute in worker threads, keeping the API responsive.
+
+### Resource Cleanup
+
+Temporary images and generated decks are automatically removed after processing.
+
+---
+
+## 📲 Importing Decks
+
+KanGen generates standard `.apkg` files.
+
+| Platform | Application |
+|-----------|------------|
+| Windows | Anki Desktop |
+| macOS | Anki Desktop |
+| Linux | Anki Desktop |
+| Android | AnkiDroid |
+| iOS | AnkiMobile |
+| Browser | AnkiWeb |
+
+Import through:
+
+```text
+File → Import → Select .apkg
+```
+
+---
+
+## 🗺 Roadmap
+
+### Completed
+
+- Gemini 2.5 Flash extraction
+- Structured JSON output
 - On-yomi / Kun-yomi separation
-- Dictionary validation via SudachiPy
-- Batched Gemini LLM (quota-aware)
-- Duplicate detection + empty card prevention
-- Anki & AnkiDroid compatible `.apkg` output
+- SudachiPy validation
+- genanki integration
+- FastAPI backend
+- AWS S3 delivery
+- Retry handling
+- Automatic cleanup
 
-### 🚧 Planned
-- REST API
-- Web interface (Streamlit prototype on `change/ui` branch)
-- Persistent caching
-- Confidence scores per card
-- Multiple example sentences per kanji
-- Additional export formats
+### Planned
 
----
-
-## Known Limitations
-
-- OCR accuracy depends on image quality — blurry or very dark photos will struggle
-- Dense or unusual layouts may confuse the spatial grouping step
-- Handwritten kanji is not supported
-- Internal APIs are not stable yet — don't build on them
+- Next.js web interface
+- Redis job queue
+- Persistent image caching
+- Multiple example sentences
+- Batch deck generation
+- User authentication
+- Deck customization options
 
 ---
 
-## Architecture
+## 🏛 Design Principles
 
-KanGen is built like something meant to become an API. Every stage is:
+### Stateless
 
-- **Stateless** — each request is independent
-- **Modular** — swap out OCR, LLM, or dictionary without touching the rest
-- **Validation-driven** — bad data gets caught before it becomes a flashcard
-- **Batch-friendly** — designed for automation, not just one-off runs
+Each request is independent and self-contained.
 
----
+### Schema-Driven
 
-## Contributing
+All outputs are validated through typed models before deck generation.
 
-Open to ideas, feedback, and contributions — especially in:
+### Fail-Safe
 
-- **Japanese linguistics** — better validation, edge cases, reading rules
-- **OCR robustness** — handling messier real-world photos
-- **Study workflow design** — what do learners actually need?
-- **API & frontend** — the next phase of the project
+Temporary resources are cleaned aggressively and external API failures are handled gracefully.
 
 ---
 
-## License
+## 📄 License
 
-To be determined before public release.
+MIT License
 
 ---
 
-*KanGen works because it knows what it should not do.*
+> KanGen works because it understands not only what to extract, but also what to ignore.

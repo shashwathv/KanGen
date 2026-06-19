@@ -404,7 +404,6 @@ Temporary resources are cleaned aggressively and external API failures are handl
 
 ## 📄 License
 
-MIT License
 
 ---
 

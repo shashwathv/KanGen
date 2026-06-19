@@ -1,71 +1,59 @@
-from internal.image_processing import convert_heic_to_jpeg, load_image, find_table_contour, warp_perspective
-from internal.ocr import SmartOCRService
-from internal.grouper import KanjiGrouper
-from internal.llm import SmartEnhancer
+import os
+from pathlib import Path
+from internal.image_processing import convert_heic_to_jpeg
+from internal.llm import VisionEnhancer
 from internal.anki import AnkiGenerator
 from services.storage import upload_file, download_file, get_presigned_url
-import os
 from dotenv import load_dotenv
-load_dotenv()
-from pathlib import Path
 
-ocr_service = SmartOCRService(use_gpu=False)
-grouper = KanjiGrouper()
-enhancer = SmartEnhancer(api_key=os.getenv("GEMINI_API_KEY"))
+load_dotenv()
+
+enhancer = VisionEnhancer()
 
 def run_pipeline(file_path: str, job_id: str) -> dict:
     local_input = f"/tmp/{job_id}_input.jpg"
-    download_file(file_path, local_input)
-    print(f"DEBUG: S3 key received: {file_path}")
-    print(f"DEBUG: Local input path: {local_input}")
-    print(f"DEBUG: File exists after download: {os.path.exists(local_input)}")
-    file_path = Path(local_input)
-    anki_generator = AnkiGenerator()
+    output_path = Path(f"/tmp/{job_id}_output.apkg")
+    s3_key = f"outputs/{job_id}_output.apkg"
+    
+    img_path = None
+    
     try:
-        img_path = convert_heic_to_jpeg(file_path)
-        original_img = load_image(img_path)
-
-        table_contour = find_table_contour(original_img)
-        if table_contour is not None:
-            processed_img = warp_perspective(original_img, table_contour)
-        else:
-            processed_img = original_img
+        download_file(file_path, local_input)
+        file_path_obj = Path(local_input)
         
-        text_blocks = ocr_service.extract_all_text_with_context(processed_img)
-        if not text_blocks:
-                return {"status": "failed", "error": "No text detected"}
+        img_path = convert_heic_to_jpeg(file_path_obj)
         
-        kanji_entries = grouper.group_by_proximity(text_blocks)
-        if not kanji_entries:
-                return {"status":"failed", "error":f"⚠️ No kanji found in {file_path}"}
-
-        try:
-            enhanced_cards = enhancer.enhance_all(kanji_entries)
-        except Exception as e:
-                enhanced_cards = []
-        for enhanced_card in enhanced_cards:
-                try:
-                    success = anki_generator.add_card(
-                        enhanced_card.kanji,
-                        enhanced_card.meaning,
-                        enhanced_card.on_yomi,
-                        enhanced_card.kun_yomi,
-                        enhanced_card.example
-                    )
-                except Exception as e:
-                    continue
+        cards = enhancer.extract_cards_from_image(str(img_path))
+        if not cards:
+            return {"status": "failed", "error": "No kanji detected or extraction failed"}
         
-        output_path = Path(f"/tmp/{job_id}_output.apkg")
-        anki_generator.save_package(output_path)
-        s3_key = f"outputs/{job_id}_output.apkg"
+        anki_generator = AnkiGenerator()
+        for card in cards:
+            anki_generator.add_card(
+                card.kanji, card.meaning, card.on_yomi, card.kun_yomi, card.example
+            )
+            
+        success = anki_generator.save_package(output_path)
+        if not success:
+            return {"status": "failed", "error": "No valid notes were created for the deck."}
+            
         upload_file(str(output_path), s3_key)
         url = get_presigned_url(s3_key)
+        
         return {
             "status": "done",
-            "output_path": output_path,
-            "download_url":url,
+            "output_path": str(output_path),
+            "download_url": url,
             "stats": anki_generator.get_statistics()
         }
                 
     except Exception as e:
         return {"status": "failed", "error": str(e)}
+        
+    finally:
+        for p in [local_input, img_path, str(output_path)]:
+            if p and os.path.exists(p):
+                try:
+                    os.remove(p)
+                except Exception as e:
+                    print(f"Warning: Failed to clean up {p}: {e}")

@@ -11,4 +11,4 @@ def get_job_status(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    return JobStatus(**job)
+    return JobStatus(**job)   

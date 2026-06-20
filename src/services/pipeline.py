@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from internal.image_processing import convert_heic_to_jpeg
+from internal.image_processing import convert_heic_to_jpeg, prepare_image
 from internal.llm import VisionEnhancer
 from internal.anki import AnkiGenerator
 from services.storage import upload_file, download_file, get_presigned_url
@@ -22,6 +22,7 @@ def run_pipeline(file_path: str, job_id: str) -> dict:
         file_path_obj = Path(local_input)
         
         img_path = convert_heic_to_jpeg(file_path_obj)
+        img_path = prepare_image(img_path)
         
         cards = enhancer.extract_cards_from_image(str(img_path))
         if not cards:

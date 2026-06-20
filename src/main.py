@@ -10,7 +10,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.append(current_dir)
 
-from internal.image_processing import convert_heic_to_jpeg
+from internal.image_processing import convert_heic_to_jpeg, prepare_image
 from internal.llm import VisionEnhancer
 from internal.anki import AnkiGenerator
 
@@ -57,6 +57,7 @@ def main(input_paths, output, api_key):
     for file_path in tqdm(source_files, desc="Processing Images"):
         try:
             img_path = convert_heic_to_jpeg(file_path)
+            img_path = prepare_image(img_path)
             
             cards = enhancer.extract_cards_from_image(str(img_path))
             if not cards:

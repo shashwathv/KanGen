@@ -180,15 +180,6 @@ TEMPLATES = [
     }
 ]
 
-# Image Processing
-MIN_CONTOUR_AREA = 50000
-APPROX_POLY_EPSILON = 0.02
-
-# Smart OCR Configuration
-PROXIMITY_RADIUS = 100  # Pixels to search around kanji anchor
-MIN_OCR_CONFIDENCE = 0.5  # Minimum confidence to consider OCR result
-VALIDATION_CONFIDENCE_THRESHOLD = 0.7  # Threshold for valid/invalid grouping
-
 # Kanji Unicode Range
 KANJI_START = '\u4e00'
 KANJI_END = '\u9fff'

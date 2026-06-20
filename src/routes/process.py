@@ -22,7 +22,7 @@ async def process_image(image: UploadFile, background_tasks: BackgroundTasks):
     upload_file(tmp_path, s3_key)
 
     background_tasks.add_task(run_and_store, job_id, s3_key)
-    return JobResponse(job_id)
+    return JobResponse(job_id=job_id)
 
 async def run_and_store(job_id:str, file_path: str):
     result = await asyncio.to_thread(run_pipeline, file_path, job_id)

@@ -1,10 +1,13 @@
 from fastapi import APIRouter, FastAPI
 from routes import jobs, process, download
+from internal.logging_config import setup_logging
 from middleware.cors import add_cors
+
+setup_logging()
 
 app = FastAPI(
     title="KanGen API",
-    version="2.0.0",
+    version="2.1.2",
     description="Turn kanji study sheet images into Anki flashcard decks"
 )
 

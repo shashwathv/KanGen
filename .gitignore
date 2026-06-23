@@ -74,3 +74,5 @@ kangen-key.pem
 .dockerignore
 
 photos/
+
+logs/

@@ -1,10 +1,13 @@
 import os
+import logging
 from pathlib import Path
 from internal.image_processing import convert_heic_to_jpeg, prepare_image
 from internal.llm import VisionEnhancer
 from internal.anki import AnkiGenerator
 from services.storage import upload_file, download_file, get_presigned_url
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -57,4 +60,4 @@ def run_pipeline(file_path: str, job_id: str) -> dict:
                 try:
                     os.remove(p)
                 except Exception as e:
-                    print(f"Warning: Failed to clean up {p}: {e}")
+                    logger.warning("Failed to clean up %s: %s", p, e)

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import genanki #type: ignore
+import logging
 from pathlib import Path
 from typing import List, Dict, Optional
 from internal.config import DECK_ID, DECK_NAME, MODEL_ID, MODEL_NAME, FIELDS, TEMPLATES, CSS
 
+logger = logging.getLogger(__name__)
+
 class AnkiGenerator:
-    """Generates Anki deck packages with validation."""
-    
     def __init__(self, deck_name: str = DECK_NAME, deck_id: int = DECK_ID):
         self.deck_id = deck_id
         self.deck_name = deck_name
@@ -25,27 +26,22 @@ class AnkiGenerator:
         self.seen_kanji = set()  # Track duplicates
 
     def add_card(self, kanji: str, meaning: str, on_yomi: str, kun_yomi: str, example: str) -> bool:
-        """
-        Adds a single card note to the deck with validation.
-        
-        Returns:
-            True if card was added, False if skipped
-        """
+
         # Validation 1: Must have kanji and meaning at minimum
         if not kanji or not kanji.strip():
-            print(f"⚠️ Skipping card: No kanji provided")
+            logger.warning("Skipping card: No kanji provided")
             self.notes_skipped += 1
             return False
         
         if not meaning or not meaning.strip():
-            print(f"⚠️ Skipping card for '{kanji}': No meaning provided")
+            logger.warning("Skipping card for %s: No meaning provided", kanji)
             self.notes_skipped += 1
             return False
         
         # Validation 2: Check for duplicates
         kanji_key = kanji.strip()
         if kanji_key in self.seen_kanji:
-            print(f"⚠️ Skipping duplicate kanji: '{kanji_key}'")
+            logger.warning("Skipping duplicate kanji: '%s'", kanji_key)
             self.notes_skipped += 1
             return False
         
@@ -67,34 +63,25 @@ class AnkiGenerator:
         return True
 
     def save_package(self, output_path: Path) -> bool:
-        """
-        Generates the .apkg file.
-        
-        Returns:
-            True if saved successfully, False otherwise
-        """
         if self.notes_created == 0:
-            print("⚠️ Warning: No notes were added to the deck.")
+            logger.error("No notes were added to the deck.")
             return False
         
         try:
-            # Ensure parent directory exists
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Generate package
+
             genanki.Package(self.deck).write_to_file(str(output_path))
-            print(f"✅ Saved Anki deck to {output_path}")
-            print(f"   Created: {self.notes_created} cards")
+            logger.info("Saved Anki deck to: %s", output_path)
+            logger.info("Created: %d cards.", self.notes_created)
             if self.notes_skipped > 0:
-                print(f"   Skipped: {self.notes_skipped} cards")
+                logger.info("Skipped: %d cards", self.notes_skipped)
             return True
             
         except Exception as e:
-            print(f"❌ Failed to save deck: {e}")
+            logger.error("Failed to save deck: %s", e)
             return False
     
     def get_statistics(self) -> Dict[str, int]:
-        """Get statistics about deck creation."""
         return {
             'created': self.notes_created,
             'skipped': self.notes_skipped,

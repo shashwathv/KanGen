@@ -1,6 +1,9 @@
 import re
+import logging
 from typing import List
 from sudachipy import Dictionary
+
+logger = logging.getLogger(__name__)
 
 class ValidationResult:
     def __init__(self, is_valid: bool, issues: List[str]):
@@ -13,7 +16,7 @@ class KanjiValidator:
             self.tokenizer = Dictionary().create()
             self.available = True
         except Exception as e:
-            print(f"!!! Warning: Failed to initialze Sudachi: {e}")
+            logger.warning("Failed to initialize Sudachi: %s", e)
             self.available = False
 
     def validate_entry(self, kanji: str, proposed_readings: List[str]) -> ValidationResult:

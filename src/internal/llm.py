@@ -1,4 +1,5 @@
 import time
+import logging
 import os
 from typing import List, Optional
 from pydantic import BaseModel, Field
@@ -8,6 +9,7 @@ from PIL import Image
 
 from internal.validator import KanjiValidator
 
+logger = logging.getLogger(__name__)
 
 class KanjiCard(BaseModel):
     kanji: str
@@ -33,7 +35,7 @@ class VisionEnhancer:
             For each kanji return: the character, English meaning, on-yomi (katakana), kun-yomi (hiragana), and one natural example sentence.
             If example sentences appear on the page, prefer those; otherwise generate one."""
 
-        max_retries = 3
+        max_retries = 5
 
         for attempt in range(max_retries):
             try:
@@ -58,14 +60,14 @@ class VisionEnhancer:
                         card.kanji, [card.on_yomi, card.kun_yomi]
                     )
                     if not validation.is_valid:
-                        print(f"!!! Validation warning for {card.kanji}: {validation.issues}")
+                        logger.warning("Reading flagged for %s: %s", card.kanji, validation.issues)
                     valid_cards.append(card)
                 return valid_cards
 
             except Exception as e:
                 err = str(e)
                 is_retryable = "429" in err or "RESOURCE_EXHAUSTED" in err or "503" in err
-                print(f"!!! Gemini extraction failed (attempt {attempt + 1}): {e}")
+                logger.warning("Gemini extraction failed (attempt: %d): %s", attempt +1, e)
                 if is_retryable and attempt < max_retries - 1:
                     time.sleep(5 * (attempt + 1))
                     continue

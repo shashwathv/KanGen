@@ -60,7 +60,15 @@ class VisionEnhancer:
                         card.kanji, [card.on_yomi, card.kun_yomi]
                     )
                     if not validation.is_valid:
-                        logger.warning("Reading flagged for %s: %s", card.kanji, validation.issues)
+                        logger.debug("Reading flagged for %s: %s", card.kanji, validation.issues)
+                        if validation.suggested_on:
+                            logger.debug("Correcting on-yomi for %s: %s -> %s",
+                                         card.kanji, card.on_yomi, validation.suggested_on)
+                            card.on_yomi = validation.suggested_on
+                        if validation.suggested_kun:
+                            logger.debug("Correcting kun-yomi for %s: %s -> %s",
+                                         card.kanji, card.kun_yomi, validation.suggested_kun)
+                            card.kun_yomi = validation.suggested_kun
                     valid_cards.append(card)
                 return valid_cards
 

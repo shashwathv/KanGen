@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 from enum import Enum
 
 class JobResponse(BaseModel):
@@ -15,11 +15,24 @@ class ProcessingStats(BaseModel):
     skipped: int
     total_processed: int
 
+class CardOut(BaseModel):
+    kanji: str
+    meaning: str
+    on_yomi: str = ""
+    kun_yomi: str = ""
+    example: str = ""
+
 class JobStatus(BaseModel):
     status: Status
     error: Optional[str] = None
-    stats: Optional[ProcessingStats] = None
+    cards: Optional[List[CardOut]] = None     
     download_url: Optional[str] = None
+    stats: Optional[ProcessingStats] = None
 
-class HealthResponse(BaseModel):
-    status: str
+class BuildRequest(BaseModel):
+    cards: List[CardOut]
+    job_id: Optional[str] = None 
+
+class BuildResponse(BaseModel):
+    download_url: str
+    stats: ProcessingStats

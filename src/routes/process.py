@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, BackgroundTasks
 from models.schemas import JobResponse
 from services.pipeline import run_pipeline
 from services.storage import upload_file
+from services.jobs_store import job_store
 from internal.logging_config import set_job_id
 import logging
 import uuid 
@@ -18,7 +19,7 @@ async def process_image(image: UploadFile, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
     set_job_id(job_id)
     logger.info("New job from upload: %s", image.filename)
-    jobs[job_id] = {"status": "processing"}
+    job_store.set(job_id, {"status": "processing"})
 
     tmp_path = f"/tmp/{job_id}_{image.filename}"
     with open(tmp_path, "wb") as f:
@@ -34,5 +35,5 @@ async def run_and_store(job_id:str, file_path: str):
     set_job_id(job_id)
     logger.info("Pipeline starting....")
     result = await asyncio.to_thread(run_pipeline, file_path, job_id)
-    jobs[job_id] = result
+    job_store.set(job_id, result)
     logger.info("Pipeline finished: status=%s", result.get("status"))
